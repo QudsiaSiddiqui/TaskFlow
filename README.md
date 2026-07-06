@@ -1,265 +1,170 @@
 # TaskFlow API
 
-A production-style Task Management REST API built using Java 21 and Spring Boot.
+A production-grade Task Management REST API built with **Java 21** and **Spring Boot**, demonstrating enterprise backend engineering practices including JWT authentication, layered architecture, DTO-based API design, validation, exception handling, database migrations with Flyway, and comprehensive unit testing.
 
-This project demonstrates backend engineering best practices including JWT authentication, layered architecture, DTO-based API design, validation, exception handling, database migrations, and RESTful API development.
-
----
-
-# Features
-
-## Authentication
-- User Registration
-- User Login
-- JWT-based Authentication
-- Password Encryption using BCrypt
-- Stateless Security
-
-## Task Management
-- Create Task
-- Get All Tasks
-- Get Task By ID
-- Update Task
-- Delete Task
-- Mark Task as Completed
-- Update Task Status
-
-## Validation & Error Handling
-- Request Validation using Jakarta Validation
-- Global Exception Handling
-- Proper HTTP Status Codes
-- Structured Error Responses
-
-## Database
-- PostgreSQL
-- Flyway Database Migrations
-- JPA/Hibernate ORM
-
-## Testing
-- Unit Testing using JUnit and Mockito
+Built as a case study solution for a Full Stack Java Developer role requiring RESTful API design, authentication, and clean code practices.
 
 ---
 
-# Tech Stack
+## Features
+
+### Authentication & Security
+- User Registration & Login
+- **JWT-based Stateless Authentication**
+- **BCrypt Password Encryption**
+- Spring Security with protected endpoints
+- **User-specific task ownership** (users can only access their own tasks)
+
+### Task Management
+- Create, Read, Update, Delete tasks
+- **Mark task as complete** (PATCH endpoint)
+- **Update task status** (pending → in_progress → completed)
+- Due date tracking with validation
+
+### Engineering Best Practices
+- **DTO-based API design** — internal entities never exposed
+- **Jakarta Validation** — request-level input validation
+- **Global Exception Handling** — structured error responses with proper HTTP status codes
+- **Flyway Database Migrations** — version-controlled schema evolution
+- **Layered Architecture** — Controller → DTO → Service → Entity → Repository
+- **JUnit 5 + Mockito** — unit tests for critical business logic
+
+---
+
+## Tech Stack
 
 | Technology | Purpose |
 |---|---|
-| Java 21 | Programming Language |
-| Spring Boot | Backend Framework |
-| Spring Security | Authentication & Security |
-| JWT | Stateless Authentication |
-| Spring Data JPA | ORM & Database Access |
-| PostgreSQL | Relational Database |
-| Flyway | Database Versioning |
-| Maven | Dependency Management |
-| JUnit & Mockito | Unit Testing |
+| Java 21 | Modern LTS with pattern matching, records, virtual threads ready |
+| Spring Boot 3.x | Rapid application development with auto-configuration |
+| Spring Security + JWT | Stateless authentication & authorization |
+| Spring Data JPA | ORM with repository pattern |
+| PostgreSQL | Production-grade relational database |
+| Flyway | Database versioning & migration |
+| Maven | Build & dependency management |
+| JUnit 5 + Mockito | Unit testing with mocking |
 
 ---
 
-# Project Structure
+## API Design
 
-src/main/java/com/task/taskflow_api
+### Authentication
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/v1/auth/register` | Register new user |
+| POST | `/api/v1/auth/login` | Login, receive JWT |
+| POST | `/api/v1/tasks` | Create task (protected) |
+| GET | `/api/v1/tasks` | Get all user tasks (protected) |
+| GET | `/api/v1/tasks/{id}` | Get task by ID (protected) |
+| PUT | `/api/v1/tasks/{id}` | Update task (protected) |
+| DELETE | `/api/v1/tasks/{id}` | Delete task (protected) |
+| PATCH | `/api/v1/tasks/{id}/complete` | Mark complete (protected) |
+| PATCH | `/api/v1/tasks/{id}/status` | Update status (protected) |
 
-├── config
-├── controller
-├── dto
-│   ├── request
-│   └── response
-├── entity
-├── enums
-├── exceptions
-├── mapper
-├── repository
-├── security
-├── service
-│   ├── impl
-│   └── interfaces
-src/test/java/com/task/taskflow_api
-├──service
-
-# Authentication Flow
-User registers using /api/v1/auth/register
-User logs in using /api/v1/auth/login
-Server generates JWT token
-Client sends token in Authorization header
-Protected APIs validate token before processing requests
-
-Example Authorization Header:
-
-Authorization: Bearer your_jwt_token
-
-# Database     Schema
-Users        Table
-Column	     Type
-id	         BIGINT
-name	     VARCHAR
-email	     VARCHAR
-password	 VARCHAR
-created_at	 TIMESTAMP
-
-# Tasks Table
-Column	    Type
-id	        BIGINT
-title	    VARCHAR
-description	TEXT
-due_date	TIMESTAMP
-status	    VARCHAR
-created_at	TIMESTAMP
-updated_at	TIMESTAMP
-user_id	    BIGINT
-
-# API Endpoints
-## Authentication APIs
-### Register User
-POST /api/v1/auth/register
-
-Request Body:
-
+### Request/Response Example
+``json
+// POST /api/v1/tasks
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123"
-}
-Response:
-
-{
-  "token": "jwt_token_here"
-}
-### Login User
-POST /api/v1/auth/login
-
-Request Body:
-{
-  "email": "john@example.com",
-  "password": "password123"
+  "title": "Implement JWT Authentication",
+  "description": "Add Spring Security with JWT tokens",
+  "dueDate": "2026-07-15T18:00:00"
 }
 
-Response:
-
+// Response 201 Created
 {
-  "token": "jwt_token_here"
+  "id": 1,
+  "title": "Implement JWT Authentication",
+  "description": "Add Spring Security with JWT tokens",
+  "dueDate": "2026-07-15T18:00:00",
+  "status": "PENDING",
+  "createdAt": "2026-07-01T10:30:00",
+  "updatedAt": "2026-07-01T10:30:00"
 }
-## Task APIs
-### Create Task
-POST /api/v1/tasks
+### Architecture
 
-Request Body:
-
-{
-  "title": "Finish Backend Assignment",
-  "description": "Complete all APIs and security",
-  "dueDate": "2026-05-20T18:00:00"
-}
-### Get All Tasks
-### GET /api/v1/tasks
-### Get Task By ID
-### GET /api/v1/tasks/{id}
-### Update Task
-PUT /api/v1/tasks/{id}
-
-Request Body:
-
-{
-  "title": "Updated Task",
-  "description": "Updated description",
-  "dueDate": "2026-05-25T20:00:00"
-}
-### Delete Task
-### DELETE /api/v1/tasks/{id}
-### Mark Task Complete
-### PATCH /api/v1/tasks/{id}/complete
-### Update Task Status
-### PATCH /api/v1/tasks/{id}/status
-
-Request Body:
-
-{
-  "status": "IN_PROGRESS"
-}
-# Running the Application
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  Controller │────→│     DTO     │────→│   Service   │────→│  Repository │
+│   (REST)    │←────│  (Request/  │←────│  (Business) │←────│    (JPA)    │
+└─────────────┘     │  Response)  │     └─────────────┘     └──────┬──────┘
+                    └─────────────┘                                │
+                                                                   ↓
+                                                            ┌─────────────┐
+                                                            │  PostgreSQL │
+                                                            │   (Flyway)  │
+                                                            └─────────────┘
+### Security Implementation
+Stateless JWT Authentication — no server-side session storage
+BCrypt Password Hashing — industry-standard password encryption
+Token Validation Filter — every protected request validated
+User-scoped Queries — tasks filtered by authenticated user ID
+### Database Schema
+## Users Table
+Table
+Column	Type	Constraints
+id	BIGINT	PK, Auto-increment
+name	VARCHAR(100)	Not null
+email	VARCHAR(255)	Unique, Not null
+password	VARCHAR(255)	Not null (BCrypt hashed)
+created_at	TIMESTAMP	Default now()
+## Tasks Table
+Table
+Column	Type	Constraints
+id	BIGINT	PK, Auto-increment
+title	VARCHAR(200)	Not null
+description	TEXT	
+due_date	TIMESTAMP	
+status	VARCHAR(20)	Default 'PENDING'
+created_at	TIMESTAMP	Default now()
+updated_at	TIMESTAMP	Auto-update
+user_id	BIGINT	FK → users.id
+### Getting Started
 ## Prerequisites
-
-Make sure the following are installed:
-
 Java 21
-Maven
-PostgreSQL
-# Clone Repository
-git clone <repository-url>
-# Configure Database
+Maven 3.9+
+PostgreSQL 15+
+## Setup
+bash
+# Clone
+git clone https://github.com/QudsiaSiddiqui/TaskFlow.git
+cd TaskFlow
 
-Create PostgreSQL database:
+# Create database
+createdb taskflow_db
 
-CREATE DATABASE taskflow_db;
-
-Update application.properties:
-
+# Configure (edit src/main/resources/application.properties)
 spring.datasource.url=jdbc:postgresql://localhost:5432/taskflow_db
 spring.datasource.username=postgres
 spring.datasource.password=your_password
-# Run Application
+
+# Run
 mvn spring-boot:run
 
-Application will start at:
-
-http://localhost:8080
-# Running Tests
+# Test
 mvn test
-# Security Implementation
-
-The application uses Spring Security with JWT authentication.
-
-Key security features include:
-
-Stateless authentication
-Password hashing using BCrypt
-JWT token validation
-Protected task endpoints
-User-specific task ownership
-
-Users can only access and manage their own tasks.
-
-# Design Decisions
-## Why DTOs?
-
-DTOs prevent exposing internal entity structures and improve API maintainability.
-
-## Why JWT?
-
-JWT enables stateless authentication and improves scalability for distributed systems.
-
-## Why Flyway?
-
-Flyway provides version-controlled database migrations and ensures schema consistency across environments.
-
-## Why Layered Architecture?
-
-Separating controller, service, and repository layers improves maintainability, scalability, and testability.
-
-# Future Improvements
-
-Potential production enhancements:
-
-Swagger/OpenAPI Documentation
-Pagination & Sorting
-Role-Based Authorization
-Refresh Tokens
-Docker Compose Setup
-CI/CD Pipeline
-Integration Testing with Testcontainers
-Redis Caching
-Rate Limiting
-# Testing
-
-Unit tests were implemented for critical service-layer functionality using:
-
-JUnit 5
-Mockito
-
-Testing focuses on validating business logic independently from database and framework dependencies.
-
-# Author
-
-Qudsia Siddiqui
-
-Backend Developer | Java & Spring Boot Enthusiast
+### Testing Strategy
+Table
+Layer	Coverage	Tools
+Service	Business logic, edge cases	JUnit 5, Mockito
+Security	Authentication flow	Spring Security Test
+Tests validate business logic independently from database and framework dependencies.
+### Design Decisions
+Table
+### Decision	Rationale
+DTOs over Entities	Prevents API contract coupling to internal schema; enables flexible versioning
+JWT over Sessions	Stateless, scalable across distributed systems; no server-side storage
+Flyway over manual DDL	Version-controlled migrations; reproducible environments; team collaboration
+Layered Architecture	Separation of concerns; testable units; maintainable codebase
+### Future Enhancements
+[ ] OpenAPI/Swagger documentation
+[ ] Pagination & sorting for task lists
+[ ] Role-based access control (ADMIN, USER)
+[ ] Refresh token rotation
+[ ] Docker Compose for one-command setup
+[ ] CI/CD with GitHub Actions
+[ ] Integration tests with Testcontainers
+[ ] Redis caching for frequent queries
+[ ] Rate limiting per user
+### Author
+# Qudsia Siddiqui
+Backend Developer | Java & Spring Boot
+GitHub | LinkedIn
